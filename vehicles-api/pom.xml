@@ -5,7 +5,7 @@
 
 	<groupId>com.mycompany</groupId>
 	<artifactId>vehicles-api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>mule-application</packaging>
 
 	<name>vehicles-api</name>
@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.3.0-20210119</app.runtime>
+		<app.runtime>4.3.0</app.runtime>
 		<mule.maven.plugin.version>3.4.2</mule.maven.plugin.version>
 	</properties>
 
@@ -31,6 +31,17 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
+				   <cloudHubDeployment>
+                     <uri>https://anypoint.mulesoft.com</uri>
+                     <muleVersion>4.3.0</muleVersion>
+                     <username>rootuser312</username>
+                     <password>Mysql@123</password>
+                     <applicationName>vehicles-api</applicationName>
+                     <environment>Sandbox</environment>
+                     <workers>1</workers>
+                     <workerType>MICRO</workerType>
+                     <objectStoreV2>true</objectStoreV2>
+                   </cloudHubDeployment>
 				</configuration>
 			</plugin>
 		</plugins>
