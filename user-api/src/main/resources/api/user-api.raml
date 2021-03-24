@@ -1,0 +1,12 @@
+#%RAML 1.0
+title: user-api
+version: v2
+
+/users:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              !include user-response.json
