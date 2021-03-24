@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="adb8aebc-64eb-46f5-ae14-f6ec8f1c89e5" >
-		<http:listener-connection host="localhost" port="8081" />
+		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="457cb319-e67b-4758-8d93-0a48a3daba43" >
 		<http:request-connection protocol="HTTPS" host="randomvin.com" />
