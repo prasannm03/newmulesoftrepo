@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="adb8aebc-64eb-46f5-ae14-f6ec8f1c89e5" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="457cb319-e67b-4758-8d93-0a48a3daba43" >
+		<http:request-connection protocol="HTTPS" host="randomvin.com" />
+	</http:request-config>
+	<flow name="vehicles-apiFlow" doc:id="7e36b58f-7644-4260-a621-58066366adc1" >
+		<http:listener doc:name="Listener" doc:id="4912d772-088e-46bf-bd99-5d574062c8b0" config-ref="HTTP_Listener_config" path="/vehicles"/>
+		<http:request method="GET" doc:name="Generate Random Vin Number" doc:id="c76eceb7-33a6-42c0-bcae-19e98e738196" config-ref="HTTP_Request_configuration" path="/getvin.php?type=fake"/>
+		<logger level="INFO" doc:name="Logger" doc:id="73353daa-c2c3-488a-a28b-66c68bc4126c" message="#[payload]"/>
+		<ee:transform doc:name="Final Message" doc:id="d98d970f-34c6-4596-88be-a36ff6ed1bb7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Vin": trim(payload)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
