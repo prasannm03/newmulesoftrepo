@@ -35,7 +35,7 @@
                      <muleVersion>4.3.0</muleVersion>
                      <username>rootuser312</username>
                      <password>Mysql@123</password>
-                     <applicationName>user-api</applicationName>
+                     <applicationName>user-sample-api</applicationName>
                      <environment>Sandbox</environment>
                      <workers>1</workers>
                      <workerType>MICRO</workerType>
