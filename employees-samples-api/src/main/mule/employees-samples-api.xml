@@ -17,6 +17,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	"id" : attributes.uriParams.id
 }]]]></http:uri-params>
 		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="28706081-4558-4f68-ab2b-c36fc2902790" message="#[payload]"/>
 		<ee:transform doc:name="Final Message" doc:id="20139b88-c731-47c1-9ff6-fee753cc8902" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
