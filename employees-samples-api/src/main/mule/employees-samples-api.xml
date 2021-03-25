@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="fdbdffa2-14f2-4cd6-959f-b22c73eebaf7" >
-		<http:listener-connection host="localhost" port="8084" />
+		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<flow name="employees-samples-apiFlow" doc:id="00a847b4-2327-4962-908e-25c4bbe810d1" >
 		<http:listener doc:name="Listener" doc:id="75067fbc-60da-4775-b87a-2477150bf8cb" config-ref="HTTP_Listener_config" path="/employees/{id}"/>
