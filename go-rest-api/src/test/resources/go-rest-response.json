@@ -1,0 +1,37 @@
+{
+   "code":200,
+   "meta":{
+      "pagination":{
+         "total":3,
+         "pages":1,
+         "page":1,
+         "limit":20
+      }
+   },
+   "data":[
+      {
+         "id":126,
+         "user_id":123,
+         "title":"Sint delego advoco demoror umbra veritas degusto celo vitae toties vitiosus et stabilis conduco depraedor rerum.",
+         "body":"Amplus nulla teres. Vitae sollicito caterva. Supplanto molestias conatus. Tricesimus eaque capillus. Corroboro censura viscus. Vilis adinventitias aperio. Titulus arx sperno. Amplitudo spiritus advenio. Articulus esse peccatus. Thalassinus vetus ademptio. Culpo delectatio bene. Amet vinco arto. Vulpes comburo comprehendo. Vero eos vulnero. Curvo velit comburo. Vulgivagus provident explicabo. Cubo asporto voluptas. In astrum summopere. Chirographum colloco ater. Benevolentia vinco brevis. Illum textilis animus. Arcesso depono capitulus. Vilitas tripudio degenero. Traho depraedor laudantium. Tonsor asporto inflammatio. Ambitus accendo thesaurus. Caput textus iste. Demens substantia bonus. Quisquam vivo apto.",
+         "created_at":"2021-03-26T03:50:05.662+05:30",
+         "updated_at":"2021-03-26T03:50:05.662+05:30"
+      },
+      {
+         "id":127,
+         "user_id":123,
+         "title":"Soluta sustineo vero angelus arbitro aperte aut inventore speciosus bos arx quo tabesco bene condico brevis.",
+         "body":"Accendo spes eum. Pauci tum claustrum. Cohaero thermae dolor. Repellat viridis cruentus. Spiritus caelestis carcer. Taedium quia verto. Virgo ipsa ocer. Aveho casus carpo. Virga thema agnitio. Non cernuus celo. Cauda incidunt acer. Delego assumenda cerno. Tres texo cras. Reprehenderit tempus viscus. Cavus et aliquam. Cogo tres cito. Ceno velociter cuius. Theatrum ascisco centum. Canis eaque certo. Perspiciatis appositus qui. Cogito volva sodalitas. Angulus demens thalassinus. Verbum suppellex auctor. Utrimque caute ante. Tergiversatio vociferor supra.",
+         "created_at":"2021-03-26T03:50:05.671+05:30",
+         "updated_at":"2021-03-26T03:50:05.671+05:30"
+      },
+      {
+         "id":1254,
+         "user_id":123,
+         "title":"Suez Canal: Owner of cargo ship blocking waterway apologises",
+         "body":"Evergreen Marine, the Taiwanese firm that operates the ship, has said salvage experts are working with the captain and the Suez Canal Authority to design a more effective plan for refloating it.The blockage is creating long tailbacks in the waterway, with more than 150 vessels currently waiting in the area to pass.About 12% of global trade passes through the canal, which connects the Mediterranean Sea to the Red Sea and provides the shortest sea link between Asia and Europe.An alternative route, around the Cape of Good Hope on the southern tip of Africa, can take two weeks longer.",
+         "created_at":"2021-03-26T07:22:48.361+05:30",
+         "updated_at":"2021-03-26T07:22:48.361+05:30"
+      }
+   ]
+}

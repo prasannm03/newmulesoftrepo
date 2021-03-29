@@ -1,0 +1,17 @@
+pipeline
+{
+  agent any
+  stages{
+   stage('Build Application'){
+  steps{
+   bat 'cd go-rest-api'
+   bat 'mvn clean package'
+  }
+  }
+  stage('Deploy Application into Anypoint Platform'){
+  steps{
+   bat 'mvn deploy -DmuleDeploy -Dapp.runtime=4.3.0 -Dusername=rootuser312 -Dpassword=Mysql@123 -Dcloudhub.application.name=go-rest-api -Denvironment=Sandbox -Dworkers=1 -DworkerType=MICRO -Danypoint.platform.client_id=14bdc04eca994f8390d7834fdf9e2439 -Danypoint.platform.client_secret=93d604d3694948BF9a6F4bd0E1DD214f'
+  }
+  }
+  }
+}
