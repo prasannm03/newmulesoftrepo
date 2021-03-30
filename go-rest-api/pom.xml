@@ -134,5 +134,11 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+   <distributionManagement>
+         <repository>
+            <id>Mulesoft</id>
+            <url>http://localhost:8081/nexus/content/repositories/Mulesoft</url>
+         </repository>
+   </distributionManagement>
 
 </project>
