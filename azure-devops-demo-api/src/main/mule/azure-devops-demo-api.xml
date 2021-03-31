@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6fd2a146-9855-48a1-9b8a-97d56867da8f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="azure-devops-demo-apiFlow" doc:id="eff667a5-175f-4b11-ac75-c9370da16969" >
+		<http:listener doc:name="Listener" doc:id="1c092d31-45ad-49a7-a549-459a60d9dc04" config-ref="HTTP_Listener_config" path="/object/{password}"/>
+		<os:store doc:name="Store" doc:id="45ef511c-2b4a-4544-8594-e0aa54a0609a" key="password">
+			<os:value ><![CDATA[#[%dw 2.0
+output applocation/json
+import toBase64 from dw::core::Binaries
+---
+toBase64(attributes.uriParams.password)]]]></os:value>
+		</os:store>
+		<ee:transform doc:name="Final Response" doc:id="a8936b6d-b5a3-414a-9782-da1eaaab80b3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "Password is stored encrypted"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
