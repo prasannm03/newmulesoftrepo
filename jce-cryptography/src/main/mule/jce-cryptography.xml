@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c340a0e0-3afd-43eb-b7bc-ed87ce2eed5e" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<crypto:jce-config name="Crypto_Jce" doc:name="Crypto Jce" doc:id="590a869c-dfba-466b-a52e-085cb3e16f6c" keystore="aeskeystore.jck" type="JCEKS" password="mulesoft" >
+		<crypto:jce-key-infos >
+			<crypto:jce-symmetric-key-info keyId="aes128" alias="aeskey" password="mulesoft" />
+		</crypto:jce-key-infos>
+	</crypto:jce-config>
+	<crypto:pgp-config name="Crypto_Pgp" doc:name="Crypto Pgp" doc:id="217ac510-6e6f-4cb2-8034-c84a5bcca161" publicKeyring="mule-public.gpg" >
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="mule123" fingerprint="3A3AE595FF6FD30A"/>
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<crypto:pgp-config name="Crypto_Pgp1" doc:name="Crypto Pgp" doc:id="61b0e781-4a52-4a38-9151-a0a9fae16c08" privateKeyring="mule-private.gpg" >
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="mule123" fingerprint="3A3AE595FF6FD30A" passphrase="mulesoft123" />
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<flow name="jce-encrypt-Flow" doc:id="bc0473fa-ab2f-458a-80b7-00ca500daa9f" >
+		<http:listener doc:name="Listener" doc:id="73c64b54-d713-45fb-a615-681701f2cb77" config-ref="HTTP_Listener_config" path="/jce-encrypt" allowedMethods="POST"/>
+		<crypto:jce-encrypt-pbe doc:name="Jce encrypt pbe" doc:id="7ff26c1c-5f01-47ff-8f08-d697aaa1c354" password="mulesoft"/>
+		<logger level="INFO" doc:name="Logger" doc:id="11ca8447-a866-49c2-a910-60eec1738bdd" message="Encrypted Message: #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="86fc8479-2d3f-4069-b29a-e80958141f3b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="jce-decrypt-Flow" doc:id="13ff13db-c49c-4896-a5f1-3854aef5300b" >
+		<http:listener doc:name="Listener" doc:id="cae8bcda-f338-4483-be59-6c3a6297128f" config-ref="HTTP_Listener_config" path="/jce-decrypt" allowedMethods="POST"/>
+		<ee:transform doc:name="Transform Message" doc:id="6b16f46d-77cc-45ab-bc3b-c4f75c512518">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/octet-stream
+---
+fromBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<crypto:jce-decrypt-pbe doc:name="Jce decrypt pbe" doc:id="d368f93d-04b9-46c9-9535-fb478d814282" password="mulesoft"/>
+	</flow>
+	<flow name="jce-key-encryptFlow" doc:id="5d3f9048-0589-4563-b645-26ec7d70bc92" >
+		<http:listener doc:name="Listener" doc:id="702cc884-fb8c-4d07-83e2-76ffa79d123a" config-ref="HTTP_Listener_config" path="/jce-encrypt-key"/>
+		<crypto:jce-encrypt doc:name="Jce encrypt" doc:id="4b99277a-db19-4575-a500-a825ac8ac39b" config-ref="Crypto_Jce" algorithm="AES" keyId="aes128"/>
+		<logger level="INFO" doc:name="Logger" doc:id="61e333d1-653d-46ad-ba54-a678cd82a54d" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="291d44b6-a74b-47d8-a0be-012080b275cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+toBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="jce-key-decryptFlow" doc:id="015b64d4-460b-40e6-a137-29fb9968da3a" >
+		<http:listener doc:name="Listener" doc:id="84f82028-bb19-40e4-ad2b-f0e68ff25133" config-ref="HTTP_Listener_config" path="/jce-key-decrypt"/>
+		<ee:transform doc:name="Transform Message" doc:id="acdce468-b00c-4f8d-9498-3c9963ad4a71" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/octet-stream
+---
+fromBase64(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<crypto:jce-decrypt doc:name="Jce decrypt" doc:id="93b0dfe2-15f9-4199-9801-517be529a048" config-ref="Crypto_Jce" algorithm="AES" keyId="aes128"/>
+	</flow>
+	<flow name="jce-xml-encryptFlow" doc:id="9784392a-3910-4ed3-b946-546ad95934ff" >
+		<http:listener doc:name="Listener" doc:id="48919e91-341b-49c9-b84f-7f4b2be54aeb" config-ref="HTTP_Listener_config" path="/jce-xml-encrypt"/>
+		<crypto:xml-encrypt doc:name="Xml encrypt" doc:id="44d75e17-e5e1-4ae6-bbb0-4fb454b8cb34" config-ref="Crypto_Jce" keyId="aes128" elementPath="/breakfast_menu/ssn"/>
+	</flow>
+	<flow name="jce-xml-decryptFlow" doc:id="a3ea2f54-6d79-4841-85ad-6ce057b9da27" >
+		<http:listener doc:name="Listener" doc:id="02c07c3b-b0af-4cac-a729-380074b99d38" config-ref="HTTP_Listener_config" path="/jce-xml-decrypt"/>
+		<crypto:xml-decrypt doc:name="Xml decrypt" doc:id="bbda7212-4509-447a-abce-07043250bcc4" config-ref="Crypto_Jce" keyId="aes128"/>
+	</flow>
+	<flow name="pgp-encryptFlow" doc:id="4215e868-d8cc-466e-9385-56314a72caf5" >
+		<http:listener doc:name="Listener" doc:id="f9d9d14b-c371-4eb1-b866-47a56b2b95b8" config-ref="HTTP_Listener_config" path="/pgp-encrypt"/>
+		<crypto:pgp-encrypt doc:name="Pgp encrypt" doc:id="a7887d10-bf12-4419-9be3-3b5db5bd06dd" config-ref="Crypto_Pgp" keyId="mule123"/>
+	</flow>
+	<flow name="pgp-decryptFlow" doc:id="9a5e7bd7-4e29-4aee-959f-2953b365aa35" >
+		<http:listener doc:name="Listener" doc:id="bb615368-19f3-493a-ac66-612763289560" config-ref="HTTP_Listener_config" path="/pgp-decrypt"/>
+		<crypto:pgp-decrypt doc:name="Pgp decrypt" doc:id="3978044a-aca0-4cee-a69a-8ad01f457f09" config-ref="Crypto_Pgp1"/>
+	</flow>
+</mule>
