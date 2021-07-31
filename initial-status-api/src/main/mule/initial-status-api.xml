@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8c5aeceb-611b-4e96-b435-a4b737d28834" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="f56a6b69-a70c-4790-ab04-aa99b254c3a0" >
+		<http:request-connection host="anypoint.mulesoft.com" protocol="HTTPS"/>
+	</http:request-config>
+	<global-property doc:name="Global Property" doc:id="bf352caa-ddd6-4fab-92c2-246a11199d17" name="anypoint.platform.username" value="${anypoint.platform.username}" />
+	<global-property doc:name="Global Property" doc:id="a1f12a14-7bfd-44d5-8f86-71bb2b9ca09e" name="anypoint.platform.password" value="${anypoint.platform.password}" />
+	<flow name="Initial-status-api" doc:id="ccc98485-23d9-4f26-bd2a-5887eff873d0" >
+		<http:listener doc:name="Listener" doc:id="ea816551-5442-4b88-b524-ff3e9397a02b" config-ref="HTTP_Listener_config" path="/initial-status/{flow-name}" allowedMethods="POST"/>
+		<set-variable value='#[attributes.uriParams."flow-name"]' doc:name="flow-name" doc:id="98e32943-7376-4def-95f6-e4f4d19b6a37" variableName="flow-name"/>
+		<set-variable value="#[attributes.queryParams.api]" doc:name="api" doc:id="d5d381a2-d373-4acf-b545-6295b50092a6" variableName="api"/>
+		<http:request method="POST" doc:name="Get Access Token" doc:id="b8ff1c38-63a3-4033-ad90-267f10f0c476" config-ref="HTTP_Request_configuration" path="/accounts/login" target="accessToken">
+			<http:body ><![CDATA[#[output application/json
+---
+{
+	"username" : '${anypoint.platform.username}',
+	"password" : '${anypoint.platform.password}'
+}]]]></http:body>
+		</http:request>
+		<http:request method="GET" doc:name="Get Organisation &amp; Environment ID" doc:id="b8fb7d82-7e7f-4d15-ab82-17faeeb86282" config-ref="HTTP_Request_configuration" path="/accounts/api/profile">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer"++ " " ++ vars.accessToken.access_token
+}]]]></http:headers>
+		</http:request>
+		<set-variable value='#[payload.organization.environments[?($.name == "Sandbox")].id[0]]' doc:name="env-id" doc:id="8d798db3-44d3-43e3-b602-cad513a2819a" variableName="env-id"/>
+		<set-variable value="#[payload.organizationId]" doc:name="organizationId" doc:id="8b8b32e9-c6c3-4dc5-8b69-a5aed3381fbb" variableName="organizationId"/>
+		<http:request method="GET" doc:name="Get Application ID For Specific API" doc:id="d92bad97-0237-4cae-9209-13258944e0bf" config-ref="HTTP_Request_configuration" path="/hybrid/api/v1/applications">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization": "Bearer" ++ " " ++ vars.accessToken."access_token",
+	"x-anypnt-org-id" : vars."organizationId",
+	"x-anypnt-env-id" : vars."env-id"
+}]]]></http:headers>
+		</http:request>
+		<set-variable value="#[%dw 2.0&#10;output appication/json&#10;---&#10;payload.data[?($.name == vars.api)].id[0]]" doc:name="applicationID" doc:id="0893565b-5b95-4b4a-8523-417a30333f78" variableName="applicationID"/>
+		<http:request method="GET" doc:name="Get List Of Flows In Application" doc:id="09431b76-b86f-4600-aee9-569fbe82f3d5" config-ref="HTTP_Request_configuration" path="/hybrid/api/v1/applications/{app-id}/flows">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization": "Bearer" ++ " " ++ vars.accessToken."access_token",
+	"x-anypnt-org-id" : vars."organizationId",
+	"x-anypnt-env-id" : vars."env-id"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"app-id" : vars.applicationID
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Update Start and Stop" doc:id="72053bc0-f17b-4578-a32e-2774fb463599" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+fun getFlow() = payload.data[?($.name == vars."flow-name")]
+---
+{
+    id: getFlow()[0].id,
+    newState: if(getFlow()[0].targets[0].lastReportedStatus == "STARTED") "STOPPED" else "STARTED"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Update the Flow Status" doc:id="a600e464-0ad5-4876-ba30-7d75f2b24f9c" config-ref="HTTP_Request_configuration" path="/hybrid/api/v1/applications/{app-id}/flows/{flow-id}">
+			<http:body ><![CDATA[#[output application/json
+---
+{   
+"desiredStatus": payload.newState
+}]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization": "Bearer" ++ " " ++ vars.accessToken."access_token",
+	"x-anypnt-org-id" : vars."organizationId",
+	"x-anypnt-env-id" : vars."env-id"
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"app-id" : vars.applicationID,
+	"flow-id": payload.id
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+</mule>
